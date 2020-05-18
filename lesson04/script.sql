@@ -91,13 +91,33 @@ INSERT IGNORE INTO `friends_requests` (`initiator_user_id`,`target_user_id`,`sta
 # Задание ii
 -- Написать скрипт, возвращающий список имен 
 -- (только firstname) пользователей без повторений в алфавитном порядке
+USE `vk`;
+SELECT `firstname` FROM `users` GROUP BY `firstname` ORDER BY `firstname` ASC;
 
 # Задание iii
 -- Написать скрипт, отмечающий несовершеннолетних пользователей как неактивных (поле is_active = false). 
 -- Предварительно добавить такое поле в таблицу profiles со значением по умолчанию = true (или 1)
+USE `vk`;
+-- Добавляем новое поле в таблицу profiles
+ALTER TABLE `profiles`
+	ADD COLUMN `is_active` TINYINT(1) NULL DEFAULT 1 AFTER `created_at`;
+-- Отмечаем несовершеннолетних пользователей
+UPDATE `profiles` SET `is_active` = 0
+	WHERE DATE (`birthday`) >= CURRENT_DATE() - INTERVAL 18 YEAR;
+SELECT * FROM `profiles`;
 
 # Задание iv
 -- Написать скрипт, удаляющий сообщения «из будущего» (дата больше сегодняшней)
+USE `vk`;
+-- С учётом того, что у меня не было таких сообщений, то вставим такое
+INSERT INTO `messages` (`from_user_id`, `to_user_id`, `body`, `created_at`) VALUES
+(1, 2, 'text', CURRENT_TIMESTAMP() + INTERVAL 1 DAY);
+
+-- Удаляем вновьсозданное сообщение из "будущего" 
+DELETE FROM `messages`
+	WHERE DATE(`created_at`) > CURRENT_TIMESTAMP();
 
 # Задание v
 -- Написать название темы курсового проекта (в комментарии)
+-- Я хотел бы попробовать описать структуру проекта развлекаьельно-информационного портала 
+-- типа "pikabu.ru"
