@@ -38,14 +38,10 @@ SELECT
 # 2. Подсчитайте количество дней рождения, которые приходятся на каждый из дней недели. 
 #    Следует учесть, что необходимы дни недели текущего года, а не года рождения.
 
--- Теоретически я всё сделал вроде правильно, но пишет ошибку что не может сгруппировать
--- Вот здесь я делаю преобразование даты рождения в 2020 году в день недели
--- и группирую
-SELECT DAYNAME(DATE_FORMAT(`birthday`, '2020-%m-%d')) AS `weekday` FROM profiles GROUP BY `weekday`;
--- Вот здесь я ставлю COUNT, чтобы подсчитать и появляется ошибка. Не могу понять что не так
 SELECT 
-	COUNT(DAYNAME(DATE_FORMAT(`birthday`, '2020-%m-%d'))) AS `weekday` 
-    FROM profiles GROUP BY `weekday`;
+	COUNT(DAYNAME(DATE_FORMAT(`birthday`, '2020-%m-%d'))), 
+    DAYNAME(DATE_FORMAT(`birthday`, '2020-%m-%d')) AS weekday 
+	FROM profiles GROUP BY weekday;
 
 # 3. (по желанию) Подсчитайте произведение чисел в столбце таблицы
 /*
