@@ -57,30 +57,29 @@ SELECT hello();
 -- Допустимо присутствие обоих полей или одно из них. Ситуация, когда оба поля принимают неопределенное значение NULL неприемлема. 
 -- Используя триггеры, добейтесь того, чтобы одно из этих полей или оба поля были заполнены. 
 -- При попытке присвоить полям NULL-значение необходимо отменить операцию.
-USE `test`;
-DELIMITER |
-CREATE TRIGGER `insert2products`
-	BEFORE INSERT ON `products`
-	FOR EACH ROW
-	BEGIN
-		IF NEW.`name` IS NOT NULL AND NEW.`description` IS NOT NULL
-		THEN
-			INSERT INTO `products` (`name`,`description`) VALUES (NEW.`name`, NEW.`description`);
-		END IF;
-	END;
-| DELIMITER ;
 
-
-SELECT HOUR(CURTIME());
-CREATE DATABASE `test`;
-USE `test`;
-CREATE TABLE `products` (`id` SERIAL PRIMARY KEY, `name` VARCHAR(32), `description` VARCHAR(32));
-USE `test`;
-INSERT INTO `products` (`name`,`description`) VALUES ('Item 1', 'Desc of I1');
-INSERT INTO `products` (`name`) VALUES ('Item 2');
-INSERT INTO `products` (`description`) VALUES ('Desc of I3');
-INSERT INTO `products` () VALUES ();
+DROP DATABASE IF EXISTS `less09`;
+CREATE DATABASE `less09` DEFAULT CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_bin';
+DROP TABLE IF EXISTS `less09`.`products`;
+CREATE TABLE `less09`.`products` (
+	`id` SERIAL,
+    `name` VARCHAR(32) DEFAULT NULL,
+    `description` VARCHAR(256) DEFAULT NULL,
+    PRIMARY KEY (`id`)
+);
+USE `less09`;
+INSERT INTO `products` (`name`,`description`) VALUES ('TV LG 42OL','TV LG 42 inches with OLED display');
+INSERT INTO `products` (`name`,`description`) VALUES ('','TV LG 52 inches with QLED display');
+INSERT INTO `products` (`name`,`description`) VALUES ('TV LG 60QL','');
+INSERT INTO `products` (`name`,`description`) VALUES ('','');
 SELECT * FROM `products`;
+TRUNCATE `products`;
+
+
+
+
+
+
 
 
 -- 3.3. (по желанию) Напишите хранимую функцию для вычисления произвольного числа Фибоначчи. Числами Фибоначчи называется последовательность 
