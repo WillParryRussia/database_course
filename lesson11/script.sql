@@ -59,8 +59,36 @@ SELECT COUNT(*) FROM `users`;
 
 -- 2. “NoSQL”
 -- 2.1. В базе данных Redis подберите коллекцию для подсчета посещений с определенных IP-адресов.
-
+-- Можно использовать обычные целочисленные значения, где ключом будет выступать адрес, а целочисленное
+-- значение это количество посещений, которое будет инкрементироваться
+SET XXX.XXX.XXX.XXX 1
+SET YYY.YYY.YYY.YYY 5
+SET ZZZ.ZZZ.ZZZ.ZZZ 12
 
 -- 2.2. При помощи базы данных Redis решите задачу поиска имени пользователя по электронному адресу 
 -- и наоборот, поиск электронного адреса пользователя по его имени.
+-- Хранение лучше всего будет организовать с помощью коллекции хэшей
+HSET user1 email 'user1@domain.com'
+HSET user2 email 'user2@domain.com'
+-- Поиск адреса почты по имени пользователя: 
+HGET user1 email
+-- Поиск имени пользователя по адресу почты:
+KEYS user1@domain.com
+
 -- 2.3. Организуйте хранение категорий и товарных позиций учебной базы данных shop в СУБД MongoDB.
+db.shop.insert
+({
+	'category_1' : {
+		'item_1' : {'name' : 'name', 'price' : 1.00, 'description' : 'description'},
+		'item_2' : {'name' : 'name', 'price' : 1.00, 'description' : 'description'},
+		'item_3' : {'name' : 'name', 'price' : 1.00, 'description' : 'description'},
+	}
+})
+db.shop.insert
+({
+	'category_2' : {
+		'item_1' : {'name' : 'name', 'price' : 1.00, 'description' : 'description'},
+		'item_2' : {'name' : 'name', 'price' : 1.00, 'description' : 'description'},
+		'item_3' : {'name' : 'name', 'price' : 1.00, 'description' : 'description'},
+	}
+})
