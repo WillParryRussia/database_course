@@ -29,14 +29,34 @@ START TRANSACTION;
 COMMIT;
 
 # 2. Администрирование MySQL
--- 2.1. Создайте двух пользователей которые имеют доступ к базе данных shop. Первому пользователю shop_read должны быть доступны 
+-- 2.1. Создайте двух пользователей которые имеют доступ к базе данных shop. 
+-- Первому пользователю shop_read должны быть доступны 
 -- только запросы на чтение данных, второму пользователю shop — любые операции в пределах базы данных shop.
+DROP DATABASE IF EXISTS `shop`;
+CREATE DATABASE `shop` DEFAULT CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_bin';
+USE `shop`;
+CREATE TABLE `products` (`id` SERIAL, `product_name` VARCHAR(32) NOT NULL, PRIMARY KEY(`id`));
 
+DROP USER IF EXISTS shop_read@localhost;
+CREATE USER shop_read@localhost IDENTIFIED WITH sha256_password BY '12345';
+GRANT SELECT ON shop.* TO 'shop_read'@'localhost';
 
--- 2.2. (по желанию) Пусть имеется таблица accounts содержащая три столбца id, name, password, содержащие первичный ключ, 
--- имя пользователя и его пароль. Создайте представление username таблицы accounts, предоставляющий доступ к столбца id и name. 
--- Создайте пользователя user_read, который бы не имел доступа к таблице accounts, однако, мог бы извлекать записи из представления username.
+DROP USER IF EXISTS shop@localhost;
+CREATE USER shop@localhost IDENTIFIED WITH sha256_password BY '12345';
+GRANT ALL ON shop.* TO 'shop'@'localhost';
 
+-- 2.2. (по желанию) Пусть имеется таблица accounts содержащая три столбца id, name, password, 
+-- содержащие первичный ключ, имя пользователя и его пароль. Создайте представление username таблицы accounts,
+-- предоставляющий доступ к столбца id и name. Создайте пользователя user_read, который бы не имел доступа 
+-- к таблице accounts, однако, мог бы извлекать записи из представления username.
+DROP DATABASE IF EXISTS `part2_task2`;
+CREATE DATABASE `part2_task2` DEFAULT CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_bin';
+USE `part2_task2`;
+CREATE TABLE `accounts` (`id` SERIAL, `name` VARCHAR(32) NOT NULL, `password` VARCHAR(256) NOT NULL, PRIMARY KEY(`id`));
+CREATE VIEW `username` AS SELECT `id`,`name` FROM `part2_task2`.`accounts`;
+DROP USER IF EXISTS 'user_read'@'localhost';
+CREATE USER 'user_read'@'localhost' IDENTIFIED WITH sha256_password BY '12345';
+GRANT SELECT ON `part2_task2`.`username` TO 'user_read'@'localhost';
 
 # 3. Хранимые процедуры и функции, триггеры
 -- 3.1. Создайте хранимую функцию hello(), которая будет возвращать приветствие, в зависимости от текущего времени суток. 
