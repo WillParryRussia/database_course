@@ -18,7 +18,23 @@ CREATE VIEW `Products and catalogs` AS
 -- 1.3. (по желанию) Пусть имеется таблица с календарным полем created_at. В ней размещены разряженые календарные записи
 -- за август 2018 года '2018-08-01', '2018-08-04', '2018-08-16' и 2018-08-17. Составьте запрос, который выводит полный список дат 
 -- за август, выставляя в соседнем поле значение 1, если дата присутствует в исходном таблице и 0, если она отсутствует.
+USE `less09`;
+DROP TABLE IF EXISTS `part1_task3`;
+CREATE TABLE `part1_task3` (`id` SERIAL, `created_at` DATE NOT NULL, PRIMARY KEY(`id`));
+INSERT INTO `part1_task3` (`created_at`) VALUES ('2018-08-01'),('2018-08-04'),('2018-08-16'),('2018-08-17');
+-- Перелопатил кучу форумов и документацию, не вижу иного выхода кроме как использовать временную таблицу для этой задачи
+DROP TABLE IF EXISTS `day_numbers`;
+CREATE TEMPORARY TABLE `day_numbers` (`number` INT NOT NULL UNIQUE);
+INSERT INTO `day_numbers`
+	VALUES (0),(1),(2),(3),(4),(5),(6),(7),(8),(9),(10),(11),(12),(13),(14),(15),
+			(16),(17),(18),(19),(20),(21),(22),(23),(24),(25),(26),(27),(28),(29),(30);
 
+SELECT
+	(DATE('2018-08-01') + INTERVAL `day_numbers`.`number` DAY) AS `August calendar`,
+	IF(`created_at` = (DATE('2018-08-01') + INTERVAL `day_numbers`.`number` DAY), 1, 0) AS `Is exists on target table`
+	FROM `day_numbers`
+	LEFT JOIN `part1_task3`
+		ON `created_at` = (DATE('2018-08-01') + INTERVAL `day_numbers`.`number` DAY);
 
 -- 1.4. (по желанию) Пусть имеется любая таблица с календарным полем created_at. Создайте запрос, который удаляет устаревшие записи из таблицы, 
 -- оставляя только 5 самых свежих записей.
@@ -77,7 +93,6 @@ SELECT hello();
 -- Допустимо присутствие обоих полей или одно из них. Ситуация, когда оба поля принимают неопределенное значение NULL неприемлема. 
 -- Используя триггеры, добейтесь того, чтобы одно из этих полей или оба поля были заполнены. 
 -- При попытке присвоить полям NULL-значение необходимо отменить операцию.
-
 DROP DATABASE IF EXISTS `less09`;
 CREATE DATABASE `less09` DEFAULT CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_bin';
 DROP TABLE IF EXISTS `less09`.`products`;
@@ -88,19 +103,38 @@ CREATE TABLE `less09`.`products` (
     PRIMARY KEY (`id`)
 );
 USE `less09`;
+DROP TRIGGER IF EXISTS `part3_task2`;
+DELIMITER |
+CREATE TRIGGER `part3_task2` BEFORE INSERT ON `less09`.`products` FOR EACH ROW BEGIN
+	IF (NEW.`name` IS NULL AND NEW.`description` IS NULL)
+		THEN
+			SIGNAL SQLSTATE '45000';
+	END IF;
+END |
+DELIMITER ;
+
+USE `less09`;
 INSERT INTO `products` (`name`,`description`) VALUES ('TV LG 42OL','TV LG 42 inches with OLED display');
-INSERT INTO `products` (`name`,`description`) VALUES ('','TV LG 52 inches with QLED display');
-INSERT INTO `products` (`name`,`description`) VALUES ('TV LG 60QL','');
-INSERT INTO `products` (`name`,`description`) VALUES ('','');
+INSERT INTO `products` (`description`) VALUES ('TV LG 52 inches with QLED display');
+INSERT INTO `products` (`name`) VALUES ('TV LG 60QL');
+INSERT INTO `products` () VALUES ();
 SELECT * FROM `products`;
-TRUNCATE `products`;
-
-
-
-
-
-
-
 
 -- 3.3. (по желанию) Напишите хранимую функцию для вычисления произвольного числа Фибоначчи. Числами Фибоначчи называется последовательность 
 -- в которой число равно сумме двух предыдущих чисел. Вызов функции FIBONACCI(10) должен возвращать число 55.
+DELIMITER |
+DROP FUNCTION IF EXISTS `Fibonacci`|
+CREATE FUNCTION `Fibonacci` (`number` INT UNSIGNED)
+	RETURNS INT
+	NO SQL
+BEGIN
+	DECLARE `counter`,`fi` INT DEFAULT 1;
+	WHILE (`counter` <> `number`) DO
+		SET `counter` = `counter` + 1;
+		SET `fi` = `fi` + `counter`;
+	END WHILE;
+	RETURN `fi`;
+END|
+DELIMITER ;
+
+SELECT `Fibonacci`(10);
